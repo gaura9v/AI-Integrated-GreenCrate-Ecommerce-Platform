@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Feedback</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .admin-container {
+            max-width: 1000px;
+            margin: 4rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+        .feedback-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        .feedback-item {
+            border: 1px solid #eee;
+            border-radius: 10px;
+            padding: 1.5rem;
+            background: #fafafa;
+        }
+        .feedback-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 0.5rem;
+        }
+        .feedback-email {
+            font-weight: bold;
+            color: #2e7d32;
+        }
+        .feedback-date {
+            color: #888;
+            font-size: 0.9rem;
+        }
+        .stars {
+            color: #ffd700;
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+        .feedback-comment {
+            color: #444;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-brand">🛒 GreenCrate Admin</div>
+        <div class="nav-links">
+            <a href="home.html">Back to Store</a>
+        </div>
+    </nav>
+
+    <div class="admin-container">
+        <h1 style="text-align: left; margin-bottom: 2rem; color: #333;">Customer Feedback</h1>
+        <div id="feedbackList" class="feedback-list">
+            <div class="loading">Loading feedback...</div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const container = document.getElementById('feedbackList');
+            try {
+                const response = await fetch('http://localhost:8081/api/feedback');
+                const feedbackData = await response.json();
+
+                if (feedbackData.length === 0) {
+                    container.innerHTML = '<div class="empty-orders"><h2>No feedback yet</h2><p>When customers leave feedback, it will appear here.</p></div>';
+                    return;
+                }
+
+                container.innerHTML = feedbackData.reverse().map(item => {
+                    const stars = '★'.repeat(item.rating) + '☆'.repeat(5 - item.rating);
+                    const date = new Date(item.createdAt).toLocaleString();
+                    return `
+                        <div class="feedback-item">
+                            <div class="feedback-header">
+                                <span class="feedback-email">${item.email}</span>
+                                <span class="feedback-date">${date}</span>
+                            </div>
+                            <div class="stars">${stars}</div>
+                            <div class="feedback-comment">${item.comments || 'No comments provided.'}</div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                container.innerHTML = '<div class="empty-orders"><h2>Error loading feedback</h2><p>Make sure the backend is running.</p></div>';
+            }
+        });
+    </script>
+</body>
+</html>

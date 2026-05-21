@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback - GreenCrate</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav>
+        <div class="nav-brand">🛒 GreenCrate</div>
+        <div class="nav-links">
+            <a href="home.html">Home</a>
+            <a href="products.html">Products</a>
+            <a href="cart.html">Cart</a>
+            <a href="orders.html">Orders</a>
+        </div>
+    </nav>
+
+    <div class="container" style="max-width: 600px; margin: 4rem auto; padding: 2rem;">
+        <div class="feedback-card">
+            <h1 style="text-align: center; margin-bottom: 0.5rem;">We Value Your Feedback</h1>
+            <p style="text-align: center; color: var(--gray); margin-bottom: 2rem;">Help us improve your GreenCrate experience.</p>
+            
+            <form id="feedbackForm" class="feedback-form">
+                <div class="form-group">
+                    <label for="feedbackEmail">Your Email</label>
+                    <input type="email" id="feedbackEmail" class="form-input" required readonly placeholder="Email linked from chat...">
+                </div>
+
+                <div class="form-group">
+                    <label>How would you rate your experience?</label>
+                    <div class="star-rating">
+                        <input type="radio" id="star5" name="rating" value="5" /><label for="star5" title="5 stars">★</label>
+                        <input type="radio" id="star4" name="rating" value="4" /><label for="star4" title="4 stars">★</label>
+                        <input type="radio" id="star3" name="rating" value="3" /><label for="star3" title="3 stars">★</label>
+                        <input type="radio" id="star2" name="rating" value="2" /><label for="star2" title="2 stars">★</label>
+                        <input type="radio" id="star1" name="rating" value="1" /><label for="star1" title="1 star">★</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="feedbackComments">Additional Comments</label>
+                    <textarea id="feedbackComments" class="form-input" rows="5" placeholder="Tell us what you liked or how we can improve..." required></textarea>
+                </div>
+
+                <button type="submit" class="submit-btn" style="width: 100%; margin-top: 1rem;">Submit Feedback</button>
+            </form>
+
+            <div id="feedbackSuccess" style="display: none; text-align: center; padding: 2rem;">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">✨</div>
+                <h2>Thank You!</h2>
+                <p style="color: var(--gray); margin-bottom: 1.5rem;">Your feedback has been successfully submitted. We appreciate your time.</p>
+                <a href="home.html" class="checkout-btn">Return Home</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Pre-fill email from localStorage (saved from chatbot)
+            const savedEmail = localStorage.getItem('chatUserEmail');
+            const emailInput = document.getElementById('feedbackEmail');
+            
+            if (savedEmail) {
+                emailInput.value = savedEmail;
+            } else {
+                // If no email in local storage, allow user to type it
+                emailInput.removeAttribute('readonly');
+                emailInput.placeholder = "Enter your email...";
+            }
+
+            // Handle form submission
+            const feedbackForm = document.getElementById('feedbackForm');
+            feedbackForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const email = emailInput.value;
+                const comments = document.getElementById('feedbackComments').value;
+                
+                // Get selected rating
+                const ratingElement = document.querySelector('input[name="rating"]:checked');
+                const rating = ratingElement ? parseInt(ratingElement.value) : 0;
+                
+                if (rating === 0) {
+                    showToast('Please select a star rating', true);
+                    return;
+                }
+
+                try {
+                    const response = await fetch('http://localhost:8081/api/feedback', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ email, rating, comments })
+                    });
+
+                    if (response.ok) {
+                        feedbackForm.style.display = 'none';
+                        document.getElementById('feedbackSuccess').style.display = 'block';
+                    } else {
+                        showToast('Error submitting feedback', true);
+                    }
+                } catch (error) {
+                    showToast('Network error while submitting feedback', true);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
