@@ -6,3 +6,4 @@ This project is a Java-based e-commerce application developed using the Spring B
 
 <img width="2014" height="994" alt="image" src="https://github.com/user-attachments/assets/27838733-94f7-4209-8b77-6cf89fb180da" />
 # greencrate
+# AI-Integrated-GreenCrate-Ecommerce-Platform
